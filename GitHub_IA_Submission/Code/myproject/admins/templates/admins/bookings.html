@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bookings</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h1>Bookings</h1>
+
+    <!-- Add a Back button -->
+    <a class="btn btn-primary mb-3" href="{{ url_for('admins_home') }}">Back</a>
+
+    <!-- Display flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <!-- Add a Search bar -->
+    <form class="form-inline my-2 my-lg-0" action="{{ url_for('admins.bookings') }}" method="get">
+        <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search" style="width: 20%;">
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+    </form>
+    <!-- Section for displaying Upcoming Bookings -->
+    <h2>Upcoming Bookings</h2>
+    {% for booking in upcoming_bookings %}
+    <div class="card">
+        <div class="card-body">
+            <!-- Displaying booking details: desk name, date, period, user information -->
+            <h5 class="card-title">{{ booking.desk.name }}</h5>
+            <p class="card-text">
+                {{ booking.date }} - {{ booking.period }} | 
+                {{ booking.user.first_name }} {{ booking.user.second_name }} | 
+                {{ booking.user.email }} | {{ booking.user.graduation_year }}
+            </p>
+            <!-- Form for deleting a booking -->
+            <form method="POST" onsubmit="return confirm('Do you really want to delete the booking?');">
+                {{ form.hidden_tag() }}
+                <!-- Input for justification for deleting the booking -->
+                <input type="string" name="justification" class="form-control mt-2 mb-2" placeholder="Write your justification here..." required>
+                <!-- Hidden field for booking ID -->
+                <input type="hidden" name="booking_id" value="{{ booking.id }}">
+                <!-- Delete button -->
+                {{ form.delete(class="btn btn-danger") }}
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <!-- Message displayed if there are no upcoming bookings -->
+    <p>No upcoming bookings found.</p>
+    {% endfor %}
+
+    <!-- Section for displaying Past Bookings -->
+    <h2>Past Bookings</h2>
+    {% for booking in past_bookings %}
+    <div class="card">
+        <div class="card-body">
+            <!-- Displaying past booking details: desk name, date, period, user information -->
+            <h5 class="card-title">{{ booking.desk.name }}</h5>
+            <p class="card-text">
+                {{ booking.date }} - {{ booking.period }} | 
+                {{ booking.user.first_name }} {{ booking.user.second_name }} | 
+                {{ booking.user.email }}
+            </p>
+        </div>
+    </div>
+    {% else %}
+    <!-- Message displayed if there are no past bookings -->
+    <p>No past bookings found.</p>
+    {% endfor %}
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

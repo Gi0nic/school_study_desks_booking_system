@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Page</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Admin Page</h1>
+
+        <!-- Add a Back button -->
+        <a class="btn btn-primary mb-3" href="{{ url_for('admins_home') }}">Back</a>
+
+        <!-- Display flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <!-- Search form -->
+        <form class="form-inline mb-3">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </form>
+
+        <table class="table table-striped">
+            <thead class="thead-dark">
+                <!-- Title for each column -->
+                <tr>
+                    <th>Email</th>
+                    <th>First Name</th>
+                    <th>Family name</th>
+                    <th>Graduation year</th>
+                    <th>Admin</th>
+                    <th>Ban/Unban</th>
+                    <th> Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- For loop so that every User is included in the page -->
+                {% for user in users %}
+                <tr>
+                    <!-- Email Column -->
+                    <td>{{ user.email }}</td>
+                    <!-- First Name Column -->
+                    <td>{{user.first_name}}</td>
+                    <!-- Second Name Column -->
+                    <td>{{user.second_name}}</td>
+                    <!-- Graduation Year Column -->
+                    <td>{{user.graduation_year}}
+                    <!-- Admin? Column -->
+                    <td>
+                        <!-- Admin Form: Allows toggling the admin status of a user -->
+                        <form method="POST" onsubmit="return confirm('Do you confirm?');" style="display: inline-block; margin-left: 20px;">
+                            <!-- Hidden CSRF token field for form security -->
+                            {{ form.hidden_tag() }}
+                            <!-- Hidden field containing the user's ID -->
+                            <input type="hidden" name="user_id" value="{{ user.id }}">
+                            <!-- Hidden field specifying the action to be taken ('admin') -->
+                            <input type="hidden" name="action" value="admin">
+                            <!-- Conditional rendering of button based on user's admin status -->
+                            {% if user.is_admin == False %}
+                                <!-- Button to grant admin privileges if user is not currently an admin -->
+                                {{ form.admin(class="btn btn-danger") }}
+                            {% else %}
+                                <!-- Button to revoke admin privileges if user is currently an admin -->
+                                {{ form.not_admin(class="btn btn-success") }}
+                            {% endif %}
+                        </form>
+                    </td>
+                    <td>
+                        <div style="display: flex;">
+                            <!-- Unban/Ban Form: Allows banning or unbanning a user -->
+                            <form method="POST" onsubmit="return confirm('Do you really want to ban/unban the user?');" style="display: inline-block;">
+                                <!-- Hidden CSRF token field for form security -->
+                                {{ form.hidden_tag() }}
+                                <!-- Hidden field containing the user's ID -->
+                                <input type="hidden" name="user_id" value="{{ user.id }}">
+                                <!-- Hidden field specifying the action to be taken ('ban') -->
+                                <input type="hidden" name="action" value="ban">
+                                <!-- Justification input for banning, shown only if the user is not currently banned -->
+                                {% if user.is_banned == False %}
+                                <div class="form-group">
+                                    <input type="string" name="justification" class="form-control mt-2 mb-2" placeholder="Write your justification.." required>
+                                </div>
+                                {% endif %}
+                                <!-- Conditional rendering of button based on user's ban status -->
+                                {% if user.is_banned == False %}
+                                    <!-- Button to ban the user if they are not currently banned -->
+                                    {{ form.ban(class="btn btn-danger") }}
+                                {% else %}
+                                    <!-- Button to unban the user if they are currently banned -->
+                                    {{ form.unban(class="btn btn-success") }}
+                                {% endif %}
+                            </form>
+                        </div>
+                    </td>                    
+                    <td>    
+                                <!-- Delete Form -->
+                                <form method="POST" onsubmit="return confirm('Do you really want to schedule the user for deletion?');" style="display: inline-block; margin-left: 20px;">
+                                    {{ form.hidden_tag() }}
+                                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                                    <input type="hidden" name="action" value="delete">
+                                    {{ form.delete(class="btn btn-danger") }}
+                                </form>
+                            </td>
+                        </tr>                      
+                    </td>
+                </tr>
+            {% endfor %}  
+            </tbody>            
+        </table>
+    </div>
+    <!-- JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>
